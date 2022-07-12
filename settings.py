@@ -19,3 +19,7 @@ KWH_PRICE_XPATH = config(
 PVPC_DATA_PATH = config(
     'PVPC_DATA_PATH', default=DATA_DIR / f'{PROJECT_NAME}.csv', cast=Path
 )
+
+LOGFILE = config('LOGFILE', default=PROJECT_DIR / f'{PROJECT_NAME}.log', cast=Path)
+LOGFILE_SIZE = config('LOGFILE_SIZE', cast=float, default=1e6)
+LOGFILE_BACKUP_COUNT = config('LOGFILE_BACKUP_COUNT', cast=int, default=3)

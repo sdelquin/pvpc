@@ -1,2 +1,4 @@
 selenium
 prettyconf
+typer
+logzero

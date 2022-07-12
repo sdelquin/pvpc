@@ -1,5 +1,6 @@
 import datetime
 
+from logzero import logger
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
@@ -13,6 +14,7 @@ from . import utils
 
 class PVPC:
     def __init__(self):
+        logger.debug('Initializing webdriver')
         self.driver = utils.init_webdriver(settings.SELENIUM_HEADLESS)
         self.actions = ActionChains(self.driver)
         self.data = {}
@@ -23,6 +25,7 @@ class PVPC:
         return float(price.text.replace(',', '.'))
 
     def get_kwh_prices_at(self, date: datetime.date):
+        logger.info('Getting kWh prices')
         url = utils.build_url(settings.PVPC_BASE_URL, dict(date=date.strftime('%d-%m-%Y')))
         self.driver.get(url)
 
@@ -33,11 +36,13 @@ class PVPC:
         widget.click()
         # Drag the marker through all hours
         for offset, hour in zip(range(-490, 550, 45), range(0, 24)):
+            logger.debug(f'Getting kWh price for {date} {hour:02}h')
             price = self.extract_kwh_price_at(widget, offset)
             moment = utils.build_datetime(date, hour)
             self.data[moment] = price
 
     def dump_data(self):
+        logger.info(f'Dumping data to {settings.PVPC_DATA_PATH}')
         utils.create_file_if_not_exist(settings.PVPC_DATA_PATH)
         with open(settings.PVPC_DATA_PATH, 'a') as f:
             for moment, price in self.data.items():
