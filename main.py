@@ -20,6 +20,9 @@ def run(
     tomorrow: bool = typer.Option(
         False, '--tomorrow', '-t', show_default=False, help='Get kWh prices at tomorrow.'
     ),
+    recreate: bool = typer.Option(
+        False, '--recreate', '-x', show_default=False, help='Recreate output data file.'
+    ),
     dates: str = typer.Option(
         datetime.date.today().isoformat(),
         '--dates',
@@ -34,6 +37,10 @@ def run(
     ),
 ):
     logger.setLevel(logzero.DEBUG if verbose else logzero.INFO)
+
+    if recreate:
+        if typer.confirm('Are you sure to want to recreate output data file?'):
+            output_file.unlink()
 
     scraper = PVPC(output_file)
 

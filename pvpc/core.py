@@ -56,3 +56,4 @@ class PVPC:
 
     def __del__(self):
         self.driver.quit()
+        self.output.close()
