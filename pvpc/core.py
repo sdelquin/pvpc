@@ -19,7 +19,6 @@ class PVPC:
         self.actions = ActionChains(self.driver)
         self.output_file = output_file
         utils.create_file_if_not_exist(self.output_file)
-        self.output = open(self.output_file, 'a')
 
     def extract_kwh_price_at(self, widget: WebElement, offset: int):
         self.actions.drag_and_drop_by_offset(widget, offset, 0).perform()
@@ -28,20 +27,28 @@ class PVPC:
 
     def get_kwh_prices_at(self, date: datetime.date):
         logger.info(f'Getting kWh prices at {date}')
-        url = utils.build_url(settings.PVPC_BASE_URL, dict(date=date.strftime('%d-%m-%Y')))
-        self.driver.get(url)
+        try:
+            url = utils.build_url(
+                settings.PVPC_BASE_URL, dict(date=date.strftime('%d-%m-%Y'))
+            )
+            self.driver.get(url)
+            widget = WebDriverWait(self.driver, timeout=3).until(
+                EC.element_to_be_clickable((By.ID, 'pvpcDesgloseWidgetView'))
+            )
+            # Focus the widget
+            widget.click()
 
-        widget = WebDriverWait(self.driver, timeout=3).until(
-            EC.element_to_be_clickable((By.ID, 'pvpcDesgloseWidgetView'))
-        )
-        # Focus the widget
-        widget.click()
-        # Drag the marker through all hours
-        for offset, hour in zip(range(-490, 550, 45), range(0, 24)):
-            logger.debug(f'Getting kWh price for {date} {hour:02}h')
-            price = self.extract_kwh_price_at(widget, offset)
-            moment = utils.build_datetime(date, hour)
-            self.output.write(f'{moment.isoformat()},{price}\n')
+            self.output = open(self.output_file, 'a')
+            # Drag the marker through all hours
+            for offset, hour in zip(range(-490, 550, 45), range(0, 24)):
+                logger.debug(f'Getting kWh price for {date} {hour:02}h')
+                price = self.extract_kwh_price_at(widget, offset)
+                moment = utils.build_datetime(date, hour)
+                self.output.write(f'{moment.isoformat()},{price}\n')
+            self.output.close()
+        except Exception as e:
+            logger.exception(e)
+            raise
 
     def get_kwh_prices_from_range(self, start_date, end_date):
         for date in utils.daterange(start_date, end_date):
@@ -49,4 +56,3 @@ class PVPC:
 
     def __del__(self):
         self.driver.quit()
-        self.output.close()
