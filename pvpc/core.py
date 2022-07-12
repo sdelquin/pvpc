@@ -26,6 +26,11 @@ class PVPC:
         price = widget.find_element(By.XPATH, settings.KWH_PRICE_XPATH)
         return float(price.text.replace(',', '.'))
 
+    def _handle_error(self, error):
+        logger.exception(error)
+        if self.quit_on_exception:
+            raise error
+
     def get_kwh_prices_at(self, date: datetime.date):
         try:
             url = utils.build_url(
@@ -38,19 +43,21 @@ class PVPC:
             )
             # Focus the widget
             widget.click()
-
-            self.output = open(self.output_file, 'a')
-            # Drag the marker through all hours
-            for offset, hour in zip(range(-490, 550, 45), range(0, 24)):
-                logger.debug(f'Getting kWh price for {date} {hour:02}h')
-                price = self.extract_kwh_price_at(widget, offset)
-                moment = utils.build_datetime(date, hour)
-                self.output.write(f'{moment.isoformat()},{price}\n')
-            self.output.close()
         except Exception as e:
-            logger.exception(e)
-            if self.quit_on_exception:
-                raise
+            self._handle_error(e)
+
+        self.output = open(self.output_file, 'a')
+        # Drag the marker through all hours
+        for offset, hour in zip(range(-490, 550, 45), range(0, 24)):
+            logger.debug(f'Getting kWh price for {date} {hour:02}h')
+            moment = utils.build_datetime(date, hour)
+            try:
+                price = self.extract_kwh_price_at(widget, offset)
+            except Exception as e:
+                price = -1
+                self._handle_error(e)
+            self.output.write(f'{moment.isoformat()},{price}\n')
+        self.output.close()
 
     def get_kwh_prices_from_range(self, start_date, end_date):
         for date in utils.daterange(start_date, end_date):
