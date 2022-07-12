@@ -19,7 +19,7 @@ class PVPC:
         self.actions = ActionChains(self.driver)
         self.output_file = output_file
         utils.create_file_if_not_exist(self.output_file)
-        self.data = {}
+        self.output = open(self.output_file, 'a')
 
     def extract_kwh_price_at(self, widget: WebElement, offset: int):
         self.actions.drag_and_drop_by_offset(widget, offset, 0).perform()
@@ -41,17 +41,12 @@ class PVPC:
             logger.debug(f'Getting kWh price for {date} {hour:02}h')
             price = self.extract_kwh_price_at(widget, offset)
             moment = utils.build_datetime(date, hour)
-            self.data[moment] = price
+            self.output.write(f'{moment.isoformat()},{price}\n')
 
     def get_kwh_prices_from_range(self, start_date, end_date):
         for date in utils.daterange(start_date, end_date):
             self.get_kwh_prices_at(date)
 
-    def dump_data(self):
-        logger.info(f'Dumping data to {self.output_file}')
-        with open(self.output_file, 'a') as f:
-            for moment, price in self.data.items():
-                f.write(f'{moment.isoformat()},{price}\n')
-
     def __del__(self):
         self.driver.quit()
+        self.output.close()
