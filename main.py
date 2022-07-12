@@ -23,6 +23,13 @@ def run(
     recreate: bool = typer.Option(
         False, '--recreate', '-x', show_default=False, help='Recreate output data file.'
     ),
+    quit_on_exception: bool = typer.Option(
+        False,
+        '--quit-on-exception',
+        '-q',
+        show_default=False,
+        help='Quit if an exception occurs.',
+    ),
     dates: str = typer.Option(
         datetime.date.today().isoformat(),
         '--dates',
@@ -42,7 +49,7 @@ def run(
         if typer.confirm('Are you sure to want to recreate output data file?'):
             output_file.unlink(missing_ok=True)
 
-    scraper = PVPC(output_file)
+    scraper = PVPC(output_file, quit_on_exception)
 
     if tomorrow:
         date = datetime.date.today() + datetime.timedelta(days=1)
