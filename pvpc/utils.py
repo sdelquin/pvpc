@@ -57,5 +57,20 @@ def build_datetime(date: datetime.date, hour: int):
 
 def create_file_if_not_exist(filepath: Path):
     if not filepath.exists():
-        filepath.parent.mkdir(parents=True)
+        filepath.parent.mkdir(parents=True, exist_ok=True)
         filepath.touch()
+
+
+def daterange(start, end, step=datetime.timedelta(1)):
+    '''https://stackoverflow.com/a/40023824'''
+    curr = start
+    while curr < end:
+        yield curr
+        curr += step
+
+
+def parse_dates_from_range(range: str):
+    date1, date2 = range.split(':')
+    date1 = datetime.date.fromisoformat(date1)
+    date2 = datetime.date.fromisoformat(date2)
+    return date1, date2

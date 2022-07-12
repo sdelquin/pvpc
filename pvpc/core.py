@@ -25,7 +25,7 @@ class PVPC:
         return float(price.text.replace(',', '.'))
 
     def get_kwh_prices_at(self, date: datetime.date):
-        logger.info('Getting kWh prices')
+        logger.info(f'Getting kWh prices at {date}')
         url = utils.build_url(settings.PVPC_BASE_URL, dict(date=date.strftime('%d-%m-%Y')))
         self.driver.get(url)
 
@@ -40,6 +40,10 @@ class PVPC:
             price = self.extract_kwh_price_at(widget, offset)
             moment = utils.build_datetime(date, hour)
             self.data[moment] = price
+
+    def get_kwh_prices_from_range(self, start_date, end_date):
+        for date in utils.daterange(start_date, end_date):
+            self.get_kwh_prices_at(date)
 
     def dump_data(self):
         logger.info(f'Dumping data to {settings.PVPC_DATA_PATH}')
