@@ -17,6 +17,9 @@ def run(
     verbose: bool = typer.Option(
         False, '--verbose', '-v', show_default=False, help='Loglevel increased to debug.'
     ),
+    tomorrow: bool = typer.Option(
+        False, '--tomorrow', '-t', show_default=False, help='Get kWh prices at tomorrow.'
+    ),
     dates: str = typer.Option(
         datetime.date.today().isoformat(),
         '--dates',
@@ -34,7 +37,10 @@ def run(
 
     scraper = PVPC(output_file)
 
-    if ':' in dates:
+    if tomorrow:
+        date = datetime.date.today() + datetime.timedelta(days=1)
+        scraper.get_kwh_prices_at(date)
+    elif ':' in dates:
         dates = parse_dates_from_range(dates)
         scraper.get_kwh_prices_from_range(*dates)
     else:
