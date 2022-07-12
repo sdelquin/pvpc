@@ -1,8 +1,10 @@
 import datetime
+from pathlib import Path
 
 import logzero
 import typer
 
+import settings
 from pvpc.core import PVPC
 from pvpc.utils import init_logger, parse_dates_from_range
 
@@ -21,10 +23,16 @@ def run(
         '-d',
         help='Date(s) to be scraped. If a range is wanted, use YYYY-MM-DD:YYYY-MM:DD',
     ),
+    output_file: Path = typer.Option(
+        settings.PVPC_DATA_PATH,
+        '--output',
+        '-o',
+        help='Output file to store results',
+    ),
 ):
     logger.setLevel(logzero.DEBUG if verbose else logzero.INFO)
 
-    scraper = PVPC()
+    scraper = PVPC(output_file)
 
     if ':' in dates:
         dates = parse_dates_from_range(dates)

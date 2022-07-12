@@ -13,10 +13,12 @@ from . import utils
 
 
 class PVPC:
-    def __init__(self):
+    def __init__(self, output_file=settings.PVPC_DATA_PATH):
         logger.debug('Initializing webdriver')
         self.driver = utils.init_webdriver(settings.SELENIUM_HEADLESS)
         self.actions = ActionChains(self.driver)
+        self.output_file = output_file
+        utils.create_file_if_not_exist(self.output_file)
         self.data = {}
 
     def extract_kwh_price_at(self, widget: WebElement, offset: int):
@@ -46,9 +48,8 @@ class PVPC:
             self.get_kwh_prices_at(date)
 
     def dump_data(self):
-        logger.info(f'Dumping data to {settings.PVPC_DATA_PATH}')
-        utils.create_file_if_not_exist(settings.PVPC_DATA_PATH)
-        with open(settings.PVPC_DATA_PATH, 'a') as f:
+        logger.info(f'Dumping data to {self.output_file}')
+        with open(self.output_file, 'a') as f:
             for moment, price in self.data.items():
                 f.write(f'{moment.isoformat()},{price}\n')
 
