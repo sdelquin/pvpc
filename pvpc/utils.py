@@ -61,9 +61,10 @@ def create_file_if_not_exist(filepath: Path):
         filepath.touch()
 
 
-def daterange(start, end, step=datetime.timedelta(1)):
+def daterange(start, end, step=datetime.timedelta(1), closed_interval=False):
     '''https://stackoverflow.com/a/40023824'''
     curr = start
+    end = (end + datetime.timedelta(1)) if closed_interval else end
     while curr < end:
         yield curr
         curr += step

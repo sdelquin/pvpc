@@ -23,3 +23,6 @@ PVPC_DATA_PATH = config(
 LOGFILE = config('LOGFILE', default=PROJECT_DIR / f'{PROJECT_NAME}.log', cast=Path)
 LOGFILE_SIZE = config('LOGFILE_SIZE', cast=float, default=1e6)
 LOGFILE_BACKUP_COUNT = config('LOGFILE_BACKUP_COUNT', cast=int, default=3)
+
+QUIT_ON_EXCEPTION = config('QUIT_ON_EXCEPTION', default=True, cast=lambda v: bool(int(v)))
+NUM_RETRIES = config('NUM_RETRIES', default=20, cast=int)
