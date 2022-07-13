@@ -23,7 +23,7 @@ Each record has got these two fields:
 
 **This file is updated daily in an automatic manner.**
 
-Datasets are also available at [Kaggle](https://www.kaggle.com/sdelquin/pvpc).
+Datasets are also available at [Kaggle](https://www.kaggle.com/sdelquin/pvpc-es).
 
 ## Setup
 
