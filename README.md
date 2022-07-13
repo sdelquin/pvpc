@@ -2,7 +2,7 @@
 
 ![REE](ree.svg)
 
-Regular rate _PVPC (Precio Voluntario para el Pequeño Consumir)_ (in spanish) is a way of fixing the electricity price. It was designed and is regulated by Spanish Government. It only concerns to clients within _regulated electricity market_.
+Regular rate _PVPC (Precio Voluntario para el Pequeño Consumidor)_ (in spanish) is a way of fixing the electricity price. It was designed and is regulated by Spanish Government. It only concerns to clients within _regulated electricity market_.
 
 This price es calculated **daily** by _Red Eléctrica de España (REE)_ (in spanish) in terms of hourly prices of market energy. Electricity price **can change hourly** according to the evolution of electric market.
 
