@@ -25,11 +25,6 @@ class PVPC:
         price = widget.find_element(By.XPATH, settings.KWH_PRICE_XPATH)
         return float(price.text.replace(',', '.'))
 
-    def _handle_error(self, error):
-        logger.error(error)
-        if settings.QUIT_ON_EXCEPTION:
-            raise error
-
     def get_kwh_prices_at(self, date: datetime.date, num_retry=0):
         try:
             url = utils.build_url(
@@ -37,9 +32,10 @@ class PVPC:
             )
             logger.info(f'Getting data from {url}')
             self.driver.get(url)
-            widget = WebDriverWait(self.driver, timeout=3).until(
-                EC.element_to_be_clickable((By.ID, 'pvpcDesgloseWidgetView'))
+            WebDriverWait(self.driver, timeout=settings.SELENIUM_TIMEOUT).until(
+                EC.presence_of_element_located((By.XPATH, settings.KWH_PRICE_XPATH))
             )
+            widget = self.driver.find_element(By.ID, 'pvpcDesgloseWidgetView')
             # Focus the widget
             widget.click()
 
@@ -52,13 +48,14 @@ class PVPC:
                 data.append([moment, price])
 
             self.persist_data(data)
-        except Exception:
+        except Exception as err:
             logger.warning(f'Something went wrong getting data from {url}')
             if num_retry < settings.NUM_RETRIES:
                 logger.debug(f'Retry #{num_retry + 1}')
                 self.get_kwh_prices_at(date, num_retry + 1)
             else:
-                self._handle_error(f'Unable to get whole data from {url}')
+                logger.error(f'Unable to get whole data from {url}')
+                logger.exception(err)
 
     def persist_data(self, data):
         self.output = open(self.output_file, 'a')
